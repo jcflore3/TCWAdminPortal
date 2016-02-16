@@ -1,0 +1,61 @@
+﻿@model TCWAdminPortalWeb.ViewModels.FeaturedPropertyViewModel
+@{
+    ViewBag.Title = "Manage Featured Properties";
+}
+@section Scripts{
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+}
+
+<div class="row">
+    <h2>@ViewBag.Title</h2>
+    <p>
+        Use this screen to manage the properties that shows up on the home page's featured properties' carousel.
+        Here you can add new properties to the carousel or update existing ones or even remove previously added properties.
+    </p>
+
+    <form>
+        <div class="form-group col-lg-4 col-md-4 col-sm-6">
+            <label>Title</label>
+            <input class="form-control" />
+        </div>
+        <div class="form-group col-lg-4 col-md-4 col-sm-6">
+            <label>Agent Picture</label>
+            <input type="file" class="form-control" />
+        </div>
+        <div class="form-group col-lg-4 col-md-4 col-sm-6">
+            <label>Street Address</label>
+            <input class="form-control" />
+        </div>
+        <div class="form-group col-lg-4 col-md-4 col-sm-6">
+            <label>City</label>
+            <input class="form-control" />
+        </div>
+        <div class="form-group col-lg-4 col-md-4 col-sm-6">
+            <label>State</label>
+            <input class="form-control" />
+        </div>
+        <div class="form-group col-lg-4 col-md-4 col-sm-6">
+            <label>Zip</label>
+            <input class="form-control" />
+        </div>
+        <div class="form-group col-lg-4 col-md-4 col-sm-6">
+            <label>Bed Rooms</label>
+            <input class="form-control" />
+        </div>
+        <div class="form-group col-lg-4 col-md-4 col-sm-6">
+            <label>Baths</label>
+            <input class="form-control" />
+        </div>
+        <div class="form-group col-lg-4 col-md-4 col-sm-6">
+            <label>Building Square Footage</label>
+            <input class="form-control" />
+        </div>
+        <div class="form-group col-lg-4 col-md-4 col-sm-6">
+            <label>Lot Square Footage</label>
+            <input class="form-control" />
+        </div>
+        <div class="form-group col-lg-4 col-md-4 col-sm-6"><input type="submit" value="Add" class="btn btn-success" /></div>
+    </form>
+</div>
+
