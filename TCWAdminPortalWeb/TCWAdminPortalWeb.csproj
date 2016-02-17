@@ -192,6 +192,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\Web\AgentController.cs" />
     <Compile Include="Controllers\Web\AppController.cs" />
+    <Compile Include="Controllers\Web\ContactInfoController.cs" />
     <Compile Include="Controllers\Web\FeaturedPropertiesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -221,6 +222,7 @@
     <Compile Include="Repository\ITCWAdminRepository.cs" />
     <Compile Include="Repository\TCWAdminRepository.cs" />
     <Compile Include="ViewModels\AgentViewModel.cs" />
+    <Compile Include="ViewModels\ContactInfoViewModel.cs" />
     <Compile Include="ViewModels\FeaturedPropertyViewModel.cs" />
     <Compile Include="WebRole.cs" />
   </ItemGroup>
@@ -259,7 +261,6 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\FeaturedProperties\Index2.cshtml" />
-    <Content Include="Views\App\ManageContactInfo.cshtml" />
     <Content Include="Views\App\Index.cshtml" />
     <Content Include="Views\FeaturedProperties\Index.cshtml" />
     <Content Include="Views\FeaturedProperties\Create.cshtml" />
@@ -271,6 +272,8 @@
     <Content Include="Views\Agent\Details.cshtml" />
     <Content Include="Views\Agent\Delete.cshtml" />
     <Content Include="Views\Agent\Edit.cshtml" />
+    <Content Include="Views\ContactInfo\Details.cshtml" />
+    <Content Include="Views\ContactInfo\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

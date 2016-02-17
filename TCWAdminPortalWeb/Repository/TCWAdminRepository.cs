@@ -34,6 +34,11 @@ namespace TCWAdminPortalWeb.Repository
             return dbSet.ToList();
         }
 
+        public T GetFirst()
+        {
+            return dbSet.First();
+        }
+
         public T GetById(object Id)
         {
             return dbSet.Find(Id);
