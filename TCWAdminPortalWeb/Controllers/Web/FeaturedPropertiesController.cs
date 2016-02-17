@@ -28,11 +28,13 @@ namespace TCWAdminPortalWeb.Controllers.Web
             return View(featuredPropertiesVM);
         }
 
+        // GET: FeaturedProperties/Create
         public ActionResult Create()
         {
             return View();
         }
 
+        // POST: FeaturedProperties/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(FeaturedPropertyViewModel vm)
@@ -57,7 +59,8 @@ namespace TCWAdminPortalWeb.Controllers.Web
             }
             return View(vm);
         }
-        
+
+        // GET: FeaturedProperties/Details/5
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -76,6 +79,7 @@ namespace TCWAdminPortalWeb.Controllers.Web
             return View(vm);
         }
 
+        // GET: FeaturedProperties/Delete/5
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -111,6 +115,7 @@ namespace TCWAdminPortalWeb.Controllers.Web
             return RedirectToAction("Index");
         }
 
+        // GET: FeaturedProperties/Edit/5
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -129,6 +134,7 @@ namespace TCWAdminPortalWeb.Controllers.Web
             return View(vm);
         }
 
+        // POST: FeaturedProperties/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(FeaturedPropertyViewModel vm)

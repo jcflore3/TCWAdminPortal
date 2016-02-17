@@ -1,89 +1,166 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using TCWAdminPortalWeb.Models;
+using TCWAdminPortalWeb.Repository;
+using TCWAdminPortalWeb.ViewModels;
 
 namespace TCWAdminPortalWeb.Controllers.Web
 {
     public class AgentController : Controller
     {
-        // GET: Agent
+        private TCWAdminRepository<Agent> _repository;
+
+        public AgentController()
+        {
+            _repository = new TCWAdminRepository<Agent>();
+        }
+
+        // GET: agent
         public ActionResult Index()
         {
-            return View();
+            var agents = _repository.GetAll();
+
+            //use static instance of autoMapper to Map the View to the ViewModel
+            var agentsVM = AutoMapperConfig.TCWMapper.Map<IEnumerable<Agent>, IEnumerable<AgentViewModel>>(agents);
+
+            return View(agentsVM);
         }
 
-        // GET: Agent/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: Agent/Create
+        // GET: agent/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Agent/Create
+        // POST: agent/Create
         [HttpPost]
-        public ActionResult Create(FormCollection collection)
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(AgentViewModel vm)
         {
             try
             {
-                // TODO: Add insert logic here
+                if (ModelState.IsValid)
+                {
+                    //map viewmodel to view
+                    var agent = AutoMapperConfig.TCWMapper.Map<Agent>(vm);
 
-                return RedirectToAction("Index");
+                    //now save model to db
+                    _repository.Insert(agent);
+                    _repository.Save();
+
+                    return RedirectToAction("Index");
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                //TODO: add logging
             }
+            return View(vm);
         }
 
-        // GET: Agent/Edit/5
-        public ActionResult Edit(int id)
+        // GET: agent/Details/5
+        public ActionResult Details(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            var agent = _repository.GetById(id);
+            if (agent == null)
+            {
+                return HttpNotFound();
+            }
+
+            // found item so map it to the view model and return
+            var vm = AutoMapperConfig.TCWMapper.Map<AgentViewModel>(agent);
+            return View(vm);
         }
 
-        // POST: Agent/Edit/5
-        [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        // GET: agent/Delete/5
+        public ActionResult Delete(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            var agent = _repository.GetById(id);
+            if (agent == null)
+            {
+                return HttpNotFound();
+            }
+
+            // found item so map it to the view model and return
+            var vm = AutoMapperConfig.TCWMapper.Map<AgentViewModel>(agent);
+            return View(vm);
+        }
+
+        // POST: agent/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int? id)
         {
             try
             {
-                // TODO: Add update logic here
-
-                return RedirectToAction("Index");
+                // have ID of property so delete it now
+                _repository.Delete(id);
+                _repository.Save();
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                //TODO Add logging and error handeling
             }
+            return RedirectToAction("Index");
         }
 
-        // GET: Agent/Delete/5
-        public ActionResult Delete(int id)
+        // GET: agent/Edit/5
+        public ActionResult Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            var agent = _repository.GetById(id);
+            if (agent == null)
+            {
+                return HttpNotFound();
+            }
+
+            // found item so map it to the view model and return
+            var vm = AutoMapperConfig.TCWMapper.Map<AgentViewModel>(agent);
+            return View(vm);
         }
 
-        // POST: Agent/Delete/5
+        // POST: agent/Edit/5
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(AgentViewModel vm)
         {
             try
             {
-                // TODO: Add delete logic here
+                if (ModelState.IsValid)
+                {
+                    //map viewmodel to view
+                    var agent = AutoMapperConfig.TCWMapper.Map<Agent>(vm);
 
-                return RedirectToAction("Index");
+                    //now save model to db
+                    _repository.Update(agent);
+                    _repository.Save();
+
+                    return RedirectToAction("Index");
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                //TODO: add logging
             }
+            return View(vm);
         }
     }
 }

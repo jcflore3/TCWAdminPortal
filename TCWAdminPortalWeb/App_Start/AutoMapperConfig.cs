@@ -15,6 +15,7 @@ namespace TCWAdminPortalWeb
             var mapperConfig = new MapperConfiguration(config =>
             {
                 config.CreateMap<FeaturedProperty, FeaturedPropertyViewModel>().ReverseMap();
+                config.CreateMap<Agent, AgentViewModel>().ReverseMap();
             });
 
             // set static instance of the mapper

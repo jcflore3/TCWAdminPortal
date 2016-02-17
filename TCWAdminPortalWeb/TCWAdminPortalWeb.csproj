@@ -208,6 +208,10 @@
     <Compile Include="Migrations\201602152215059_addedEnabledFlagsAndGarage.Designer.cs">
       <DependentUpon>201602152215059_addedEnabledFlagsAndGarage.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201602170254574_addedMLSListingURL.cs" />
+    <Compile Include="Migrations\201602170254574_addedMLSListingURL.Designer.cs">
+      <DependentUpon>201602170254574_addedMLSListingURL.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Agent.cs" />
     <Compile Include="Models\ContactInfo.cs" />
@@ -216,6 +220,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\ITCWAdminRepository.cs" />
     <Compile Include="Repository\TCWAdminRepository.cs" />
+    <Compile Include="ViewModels\AgentViewModel.cs" />
     <Compile Include="ViewModels\FeaturedPropertyViewModel.cs" />
     <Compile Include="WebRole.cs" />
   </ItemGroup>
@@ -256,16 +261,19 @@
     <Content Include="Views\FeaturedProperties\Index2.cshtml" />
     <Content Include="Views\App\ManageContactInfo.cshtml" />
     <Content Include="Views\App\Index.cshtml" />
-    <Content Include="Views\App\ManageAgents.cshtml" />
     <Content Include="Views\FeaturedProperties\Index.cshtml" />
     <Content Include="Views\FeaturedProperties\Create.cshtml" />
     <Content Include="Views\FeaturedProperties\Details.cshtml" />
     <Content Include="Views\FeaturedProperties\Delete.cshtml" />
     <Content Include="Views\FeaturedProperties\Edit.cshtml" />
+    <Content Include="Views\Agent\Index.cshtml" />
+    <Content Include="Views\Agent\Create.cshtml" />
+    <Content Include="Views\Agent\Details.cshtml" />
+    <Content Include="Views\Agent\Delete.cshtml" />
+    <Content Include="Views\Agent\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Agent\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -284,6 +292,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201602152215059_addedEnabledFlagsAndGarage.resx">
       <DependentUpon>201602152215059_addedEnabledFlagsAndGarage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201602170254574_addedMLSListingURL.resx">
+      <DependentUpon>201602170254574_addedMLSListingURL.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

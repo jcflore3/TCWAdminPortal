@@ -13,6 +13,11 @@ namespace TCWAdminPortalWeb.ViewModels
 
         [Display(Name = "Image URL")]
         public string ImageURL { get; set; }
+        
+        [Required]
+        [Display(Name = "MLS Listing URL")]
+        [Url]
+        public string MLSListingURL { get; set; }
 
         [Required]
         [StringLength(255, MinimumLength = 5)]
