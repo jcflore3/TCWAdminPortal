@@ -7,6 +7,7 @@ namespace TCWAdminPortalWeb.Models
         public int ID { get; set; }
         public string Title { get; set; }
         public string ImageURL { get; set; }
+        public string ThumbnailURL { get; set; }
         public string MLSListingURL { get; set; }
         public string StreetAddress { get; set; }
         public string City { get; set; }

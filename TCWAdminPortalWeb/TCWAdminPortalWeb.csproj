@@ -213,6 +213,10 @@
     <Compile Include="Migrations\201602170254574_addedMLSListingURL.Designer.cs">
       <DependentUpon>201602170254574_addedMLSListingURL.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201602172145373_AddedThumbnailURLPropertytoModel.cs" />
+    <Compile Include="Migrations\201602172145373_AddedThumbnailURLPropertytoModel.Designer.cs">
+      <DependentUpon>201602172145373_AddedThumbnailURLPropertytoModel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Agent.cs" />
     <Compile Include="Models\ContactInfo.cs" />
@@ -298,6 +302,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201602170254574_addedMLSListingURL.resx">
       <DependentUpon>201602170254574_addedMLSListingURL.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201602172145373_AddedThumbnailURLPropertytoModel.resx">
+      <DependentUpon>201602172145373_AddedThumbnailURLPropertytoModel.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -9,56 +9,197 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Queue;
+using Microsoft.WindowsAzure.Storage.Blob;
+using TCWAdminPortalWeb.Models;
+using System.IO;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace TCWAdminPortalWorker
 {
     public class WorkerRole : RoleEntryPoint
     {
-        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        private readonly ManualResetEvent runCompleteEvent = new ManualResetEvent(false);
+        //private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        //private readonly ManualResetEvent runCompleteEvent = new ManualResetEvent(false);
+
+        private CloudQueue _imagesQueue;
+        private CloudBlobContainer _imagesBlobContainer;
+        private TCWAdminContext _dbContext;
 
         public override void Run()
         {
             Trace.TraceInformation("TCWAdminPortalWorker is running");
+            CloudQueueMessage msg = null;
 
-            try
+            // To make the worker role more scalable, implement multi-threaded and 
+            // asynchronous code. See:
+            // http://msdn.microsoft.com/en-us/library/ck8bc5c6.aspx
+            // http://www.asp.net/aspnet/overview/developing-apps-with-windows-azure/building-real-world-cloud-apps-with-windows-azure/web-development-best-practices#async
+
+            while (true)
+            {
+                try {
+                    //Retrieve a new message from the queue
+                    //If this App gets to be quite large, then use getMessages instead
+                    // so that multiple queued messages are pulled at once. Don't forsee this happeining though
+                    msg = _imagesQueue.GetMessage();
+                    if (msg != null)
+                    {
+                        ProcessQueueMessage(msg);
+                    }
+                    else
+                    {
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                }
+                catch (StorageException e)
+                {
+                    if (msg != null && msg.DequeueCount > 5)
+                    {
+                        this._imagesQueue.DeleteMessage(msg);
+                        Trace.TraceError("Deleting poison queue item: '{0}'", msg.AsString);
+                    }
+                    Trace.TraceError("Exception in TCWAdminWorker: '{0}'", e.Message);
+                    System.Threading.Thread.Sleep(5000);
+                }
+            }
+            /*try
             {
                 this.RunAsync(this.cancellationTokenSource.Token).Wait();
             }
             finally
             {
                 this.runCompleteEvent.Set();
+            }*/
+        }
+
+        private void ProcessQueueMessage(CloudQueueMessage msg)
+        {
+            Trace.TraceInformation("Processing queue message {0}", msg);
+
+            // Queue message contains AdId.
+            var featuredPropId = int.Parse(msg.AsString);
+            FeaturedProperty featuredProp = _dbContext.FeaturedProperties.Find(featuredPropId);
+            if (featuredProp == null)
+            {
+                throw new Exception(String.Format("AdId {0} not found, can't create thumbnail", featuredPropId.ToString()));
+            }
+
+            Uri blobUri = new Uri(featuredProp.ImageURL);
+            string blobName = blobUri.Segments[blobUri.Segments.Length - 1];
+
+            CloudBlockBlob inputBlob = _imagesBlobContainer.GetBlockBlobReference(blobName);
+            string thumbnailName = Path.GetFileNameWithoutExtension(inputBlob.Name) + "thumb.jpg";
+            CloudBlockBlob outputBlob = _imagesBlobContainer.GetBlockBlobReference(thumbnailName);
+
+            using (Stream input = inputBlob.OpenRead())
+            using (Stream output = outputBlob.OpenWrite())
+            {
+                ConvertImageToThumbnailJPG(input, output);
+                outputBlob.Properties.ContentType = "image/jpeg";
+            }
+            Trace.TraceInformation("Generated thumbnail in blob {0}", thumbnailName);
+
+            featuredProp.ThumbnailURL = outputBlob.Uri.ToString();
+            _dbContext.SaveChanges();
+            Trace.TraceInformation("Updated thumbnail URL in database: {0}", featuredProp.ThumbnailURL);
+
+            // Remove message from queue.
+            _imagesQueue.DeleteMessage(msg);
+        }
+
+        private void ConvertImageToThumbnailJPG(Stream input, Stream output)
+        {
+            int thumbnailsize = 80;
+            int width;
+            int height;
+            var originalImage = new Bitmap(input);
+
+            if (originalImage.Width > originalImage.Height)
+            {
+                width = thumbnailsize;
+                height = thumbnailsize * originalImage.Height / originalImage.Width;
+            }
+            else
+            {
+                height = thumbnailsize;
+                width = thumbnailsize * originalImage.Width / originalImage.Height;
+            }
+
+            Bitmap thumbnailImage = null;
+            try
+            {
+                thumbnailImage = new Bitmap(width, height);
+
+                using (Graphics graphics = Graphics.FromImage(thumbnailImage))
+                {
+                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                    graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    graphics.DrawImage(originalImage, 0, 0, width, height);
+                }
+
+                thumbnailImage.Save(output, ImageFormat.Jpeg);
+            }
+            finally
+            {
+                if (thumbnailImage != null)
+                {
+                    thumbnailImage.Dispose();
+                }
             }
         }
 
         public override bool OnStart()
         {
-            // Set the maximum number of concurrent connections
+            // Set the maximum number of concurrent connections.
             ServicePointManager.DefaultConnectionLimit = 12;
 
-            // For information on handling configuration changes
-            // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
+            // Read database connection string and open database.
+            var dbConnString = CloudConfigurationManager.GetSetting("TCWAdminPortalDbConnectionString");
+            _dbContext = new TCWAdminContext(dbConnString);
 
-            bool result = base.OnStart();
+            // Open storage account using credentials from .cscfg file.
+            var storageAccount = CloudStorageAccount.Parse
+                (RoleEnvironment.GetConfigurationSettingValue("StorageConnectionString"));
 
-            Trace.TraceInformation("TCWAdminPortalWorker has been started");
+            Trace.TraceInformation("Creating images blob container");
+            var blobClient = storageAccount.CreateCloudBlobClient();
+            _imagesBlobContainer = blobClient.GetContainerReference("images");
+            if (_imagesBlobContainer.CreateIfNotExists())
+            {
+                // Enable public access on the newly created "images" container.
+                _imagesBlobContainer.SetPermissions(
+                    new BlobContainerPermissions
+                    {
+                        PublicAccess = BlobContainerPublicAccessType.Blob
+                    });
+            }
 
-            return result;
+            Trace.TraceInformation("Creating images queue");
+            CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
+            _imagesQueue = queueClient.GetQueueReference("images");
+            _imagesQueue.CreateIfNotExists();
+
+            Trace.TraceInformation("Storage initialized");
+            return base.OnStart();
         }
 
         public override void OnStop()
         {
             Trace.TraceInformation("TCWAdminPortalWorker is stopping");
 
-            this.cancellationTokenSource.Cancel();
-            this.runCompleteEvent.WaitOne();
+            //this.cancellationTokenSource.Cancel();
+            //this.runCompleteEvent.WaitOne();
 
             base.OnStop();
 
             Trace.TraceInformation("TCWAdminPortalWorker has stopped");
         }
 
-        private async Task RunAsync(CancellationToken cancellationToken)
+        /*private async Task RunAsync(CancellationToken cancellationToken)
         {
             // TODO: Replace the following with your own logic.
             while (!cancellationToken.IsCancellationRequested)
@@ -66,6 +207,6 @@ namespace TCWAdminPortalWorker
                 Trace.TraceInformation("Working");
                 await Task.Delay(1000);
             }
-        }
+        }*/
     }
 }

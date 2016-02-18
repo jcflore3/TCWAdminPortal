@@ -5,9 +5,13 @@ namespace TCWAdminPortalWeb.Models
 {
     public class TCWAdminContext : DbContext
     {
-        public TCWAdminContext() : base("DefaultConnection")
+        public TCWAdminContext() : base("TCWAdminPortalContext")
         {
 
+        }
+
+        public TCWAdminContext(string connString) : base(connString)
+        {
         }
 
         public DbSet<FeaturedProperty> FeaturedProperties { get; set; }

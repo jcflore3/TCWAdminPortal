@@ -96,6 +96,12 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TCWAdminPortalWeb\TCWAdminPortalWeb.csproj">
+      <Project>{61041fa7-ee40-4994-991f-70655c82a67f}</Project>
+      <Name>TCWAdminPortalWeb</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

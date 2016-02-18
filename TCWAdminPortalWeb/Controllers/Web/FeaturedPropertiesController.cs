@@ -5,6 +5,13 @@ using System.Web.Mvc;
 using TCWAdminPortalWeb.Models;
 using TCWAdminPortalWeb.Repository;
 using TCWAdminPortalWeb.ViewModels;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.ServiceRuntime;
+using Microsoft.WindowsAzure.Storage.RetryPolicies;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Queue;
+using System.Web;
+using System.Threading.Tasks;
 
 namespace TCWAdminPortalWeb.Controllers.Web
 {
@@ -14,7 +21,29 @@ namespace TCWAdminPortalWeb.Controllers.Web
 
         public FeaturedPropertiesController()
         {
-            _repository = new TCWAdminRepository<FeaturedProperty>();
+            //Initialize the Azure Storage first so the repository has what it needs to access the Blob Storage
+            // Open storage account using credentials from .cscfg file.
+            var storageAccount = CloudStorageAccount.Parse(RoleEnvironment.GetConfigurationSettingValue("StorageConnectionString"));
+
+            // Get context object for working with blobs, and 
+            // set a default retry policy appropriate for a web user interface.
+            var blobClient = storageAccount.CreateCloudBlobClient();
+            blobClient.DefaultRequestOptions.RetryPolicy = new LinearRetry(TimeSpan.FromSeconds(3), 3);
+
+            // Get a reference to the blob container.
+            CloudBlobContainer imagesBlobContainer = blobClient.GetContainerReference("images");
+
+            // Get context object for working with queues, and 
+            // set a default retry policy appropriate for a web user interface.
+            CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
+            queueClient.DefaultRequestOptions.RetryPolicy = new LinearRetry(TimeSpan.FromSeconds(3), 3);
+
+            // Get a reference to the queue.
+            CloudQueue imagesQueue = queueClient.GetQueueReference("images");
+
+            //Instantiate a repository of type FeaturedProperty
+            _repository = new TCWAdminRepository<FeaturedProperty>(imagesBlobContainer, imagesQueue);
+            
         }
 
         // GET: FeaturedProperties
@@ -37,18 +66,29 @@ namespace TCWAdminPortalWeb.Controllers.Web
         // POST: FeaturedProperties/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(FeaturedPropertyViewModel vm)
+        public async Task<ActionResult> Create(FeaturedPropertyViewModel vm, HttpPostedFileBase imageFile)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
+                    CloudBlockBlob imageBlob = await _repository.InsertImageBlob(imageFile);
+                    if (imageBlob != null)
+                    {
+                        vm.ImageURL = imageBlob.Uri.ToString();
+                    }
+
                     //map viewmodel to view
                     var featuredProp = AutoMapperConfig.TCWMapper.Map<FeaturedProperty>(vm);
 
                     //now save model to db
                     _repository.Insert(featuredProp);
-                    _repository.Save();
+                    await _repository.SaveAsync();
+
+                    if (imageBlob != null)
+                    {
+                        _repository.AddMessageToQueue(featuredProp.ID.ToString());
+                    }
 
                     return RedirectToAction("Index");
                 }
@@ -104,7 +144,12 @@ namespace TCWAdminPortalWeb.Controllers.Web
         public ActionResult DeleteConfirmed(int? id)
         {
             try {
-                // have ID of property so delete it now
+                var featuredProp = _repository.GetById(id);
+
+                //First delete the image from the blob
+                _repository.DeleteBlobsAsync(featuredProp.ImageURL, featuredProp.ThumbnailURL);
+
+                // then delete the featured property record itself
                 _repository.Delete(id);
                 _repository.Save();
             }
@@ -137,18 +182,29 @@ namespace TCWAdminPortalWeb.Controllers.Web
         // POST: FeaturedProperties/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(FeaturedPropertyViewModel vm)
+        public async Task<ActionResult> Edit(FeaturedPropertyViewModel vm, HttpPostedFileBase imageFile)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
+                    CloudBlockBlob imageBlob = await _repository.InsertImageBlob(imageFile);
+                    if (imageBlob != null)
+                    {
+                        vm.ImageURL = imageBlob.Uri.ToString();
+                    }
+
                     //map viewmodel to view
                     var featuredProp = AutoMapperConfig.TCWMapper.Map<FeaturedProperty>(vm);
 
                     //now save model to db
                     _repository.Update(featuredProp);
-                    _repository.Save();
+                    await _repository.SaveAsync();
+
+                    if (imageBlob != null)
+                    {
+                        _repository.AddMessageToQueue(featuredProp.ID.ToString());
+                    }
 
                     return RedirectToAction("Index");
                 }

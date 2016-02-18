@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCWAdminPortalWeb", "TCWAdm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCWAdminPortalWorker", "TCWAdminPortalWorker\TCWAdminPortalWorker.csproj", "{9252853D-C0E9-4428-ADE0-A725164A141F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCWAdminPortalCommon", "TCWAdminPortalCommon\TCWAdminPortalCommon.csproj", "{234A80C8-5DD3-4021-9472-9AD814457EDE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{9252853D-C0E9-4428-ADE0-A725164A141F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9252853D-C0E9-4428-ADE0-A725164A141F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9252853D-C0E9-4428-ADE0-A725164A141F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{234A80C8-5DD3-4021-9472-9AD814457EDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{234A80C8-5DD3-4021-9472-9AD814457EDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{234A80C8-5DD3-4021-9472-9AD814457EDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{234A80C8-5DD3-4021-9472-9AD814457EDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

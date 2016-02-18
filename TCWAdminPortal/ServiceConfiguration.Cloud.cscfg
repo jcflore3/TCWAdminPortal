@@ -12,7 +12,7 @@
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
       <Setting name="StorageConnectionString" value="UseDevelopmentStorage=true" />
-      <Setting name="TCWAdminPortalDbConnectionString" value="Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=ContosoAds; Integrated Security=True; MultipleActiveResultSets=True;" />
+      <Setting name="TCWAdminPortalDbConnectionString" value="Data Source=(localdb)\MSSQLLocalDB; Initial Catalog=TCWAdminPortalDb; Integrated Security=True; MultipleActiveResultSets=True;" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

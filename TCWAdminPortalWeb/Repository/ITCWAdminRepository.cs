@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure.Storage.Blob;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace TCWAdminPortalWeb.Repository
 {
@@ -15,6 +18,12 @@ namespace TCWAdminPortalWeb.Repository
         void Insert(T obj);
         void Update(T obj);
         void Delete(object Id);
+        Task<CloudBlockBlob> UploadAndSaveBlobAsync(HttpPostedFileBase imageFile);
+        Task DeleteBlobsAsync(string imageURL, string thumbnailURL);
+        Task DeleteBlobAsync(Uri blobUri);
+        Task<CloudBlockBlob> InsertImageBlob(HttpPostedFileBase imageFile);
+        Task AddMessageToQueue(string IdString);
         void Save();
+        Task<int> SaveAsync();
     }
 }
