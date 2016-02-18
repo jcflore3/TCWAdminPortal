@@ -12,6 +12,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
 using System.Web;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace TCWAdminPortalWeb.Controllers.Web
 {
@@ -87,7 +88,7 @@ namespace TCWAdminPortalWeb.Controllers.Web
 
                     if (imageBlob != null)
                     {
-                        _repository.AddMessageToQueue(featuredProp.ID.ToString());
+                        _repository.AddMessageToQueue(featuredProp.ID.ToString(), typeof(FeaturedProperty).ToString());
                     }
 
                     return RedirectToAction("Index");
@@ -141,13 +142,13 @@ namespace TCWAdminPortalWeb.Controllers.Web
         // POST: FeaturedProperties/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int? id)
+        public async Task<ActionResult> DeleteConfirmed(int? id)
         {
             try {
                 var featuredProp = _repository.GetById(id);
 
                 //First delete the image from the blob
-                _repository.DeleteBlobsAsync(featuredProp.ImageURL, featuredProp.ThumbnailURL);
+                await _repository.DeleteBlobsAsync(featuredProp.ImageURL, featuredProp.ThumbnailURL);
 
                 // then delete the featured property record itself
                 _repository.Delete(id);
@@ -188,10 +189,17 @@ namespace TCWAdminPortalWeb.Controllers.Web
             {
                 if (ModelState.IsValid)
                 {
-                    CloudBlockBlob imageBlob = await _repository.InsertImageBlob(imageFile);
-                    if (imageBlob != null)
+                    CloudBlockBlob imageBlob = null;
+                    if (imageFile != null && imageFile.ContentLength != 0)
                     {
-                        vm.ImageURL = imageBlob.Uri.ToString();
+                        // User is changing the image -- delete the existing
+                        // image blobs and then upload and save a new one.
+                        await _repository.DeleteBlobsAsync(vm.ImageURL, vm.ThumbnailURL);
+                        imageBlob = await _repository.InsertImageBlob(imageFile);
+                        if (imageBlob != null)
+                        {
+                            vm.ImageURL = imageBlob.Uri.ToString();
+                        }
                     }
 
                     //map viewmodel to view
@@ -203,7 +211,7 @@ namespace TCWAdminPortalWeb.Controllers.Web
 
                     if (imageBlob != null)
                     {
-                        _repository.AddMessageToQueue(featuredProp.ID.ToString());
+                        _repository.AddMessageToQueue(featuredProp.ID.ToString(), typeof(FeaturedProperty).ToString());
                     }
 
                     return RedirectToAction("Index");
@@ -211,7 +219,7 @@ namespace TCWAdminPortalWeb.Controllers.Web
             }
             catch (Exception ex)
             {
-                //TODO: add logging
+                Console.WriteLine(ex);
             }
             return View(vm);
         }

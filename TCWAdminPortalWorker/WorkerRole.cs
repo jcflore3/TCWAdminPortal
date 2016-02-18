@@ -79,15 +79,53 @@ namespace TCWAdminPortalWorker
         {
             Trace.TraceInformation("Processing queue message {0}", msg);
 
-            // Queue message contains AdId.
-            var featuredPropId = int.Parse(msg.AsString);
-            FeaturedProperty featuredProp = _dbContext.FeaturedProperties.Find(featuredPropId);
-            if (featuredProp == null)
+            // process the message
+            var msgString = msg.AsString;
+            string[] msgStrArray = msgString.Split('-');
+
+            var recordId = int.Parse(msgStrArray[0]);
+            Uri blobUri = null;
+            FeaturedProperty featuredProp = null;
+            Agent agentRecord = null;
+            if (msgStrArray != null && msgStrArray.Length > 1)
             {
-                throw new Exception(String.Format("AdId {0} not found, can't create thumbnail", featuredPropId.ToString()));
+                //TODO: this is ugly, have to find a better way to identify and process the message type
+                if (typeof(FeaturedProperty).ToString().Equals(msgStrArray[1]))
+                {
+                    featuredProp = _dbContext.FeaturedProperties.Find(recordId);
+                    // Reload the context just to be safe
+                    _dbContext.Entry(featuredProp).Reload();
+                    if (featuredProp == null)
+                    {
+                        throw new Exception(String.Format("Feature Property Id {0} not found, can't create thumbnail", recordId.ToString()));
+                    }
+                    blobUri = new Uri(featuredProp.ImageURL);
+                }
+                else if (typeof(Agent).ToString().Equals(msgStrArray[1]))
+                {
+                    agentRecord = _dbContext.Agents.Find(recordId);
+                    // Reload the context just to be safe
+                    _dbContext.Entry(agentRecord).Reload();
+                    if (agentRecord == null)
+                    {
+                        throw new Exception(String.Format("Agent Id {0} not found, can't create thumbnail", recordId.ToString()));
+                    }
+                    blobUri = new Uri(agentRecord.ImageUrl);
+                }
+                else
+                {
+                    //type not handled yet so just return
+                    return;
+                }
+            }
+            else
+            {
+                //the queue message did not include both a record id and a string type,
+                //therefore we don't know which type of message we are processing so return 
+                //and do not process anything.
+                return;
             }
 
-            Uri blobUri = new Uri(featuredProp.ImageURL);
             string blobName = blobUri.Segments[blobUri.Segments.Length - 1];
 
             CloudBlockBlob inputBlob = _imagesBlobContainer.GetBlockBlobReference(blobName);
@@ -102,9 +140,17 @@ namespace TCWAdminPortalWorker
             }
             Trace.TraceInformation("Generated thumbnail in blob {0}", thumbnailName);
 
-            featuredProp.ThumbnailURL = outputBlob.Uri.ToString();
+            //TODO: Again, this is ugly but it works. Need to find a better way
+            if (featuredProp != null)
+            {
+                featuredProp.ThumbnailURL = outputBlob.Uri.ToString();
+            }
+            else if (agentRecord != null)
+            {
+                agentRecord.ThumbnailURL = outputBlob.Uri.ToString();
+            }
             _dbContext.SaveChanges();
-            Trace.TraceInformation("Updated thumbnail URL in database: {0}", featuredProp.ThumbnailURL);
+            Trace.TraceInformation("Updated thumbnail URL in database: {0}", outputBlob.Uri.ToString());
 
             // Remove message from queue.
             _imagesQueue.DeleteMessage(msg);

@@ -93,9 +93,19 @@ namespace TCWAdminPortalWeb.Repository
             return imageBlob;
         }
 
-        public async Task AddMessageToQueue(string IdString)
+        /// <summary>
+        /// Adds a message to the worker role queue
+        /// </summary>
+        /// <param name="IdString">The Id of the record the queue message corresponds to</param>
+        /// <param name="objTypeStr">The string type of the record id passed in</param>
+        /// <returns></returns>
+        public async Task AddMessageToQueue(string IdString, string objTypeStr)
         {
-            var queueMessage = new CloudQueueMessage(IdString);
+            //set the message to only the ID of the record the image belongs too.
+            //but, we also need a way to differentiate the type of record so the 
+            //worker process knows which table to look in. Therefore add the type
+            //to the end of the id.
+            var queueMessage = new CloudQueueMessage(IdString + '-' + objTypeStr);
             await _imagesQueue.AddMessageAsync(queueMessage);
             Trace.TraceInformation("Created queue message for AdId {0}", IdString);
         }
@@ -134,10 +144,18 @@ namespace TCWAdminPortalWeb.Repository
 
         public async Task DeleteBlobAsync(Uri blobUri)
         {
-            string blobName = blobUri.Segments[blobUri.Segments.Length - 1];
-            Trace.TraceInformation("Deleting image blob {0}", blobName);
-            CloudBlockBlob blobToDelete = _imagesBlobContainer.GetBlockBlobReference(blobName);
-            await blobToDelete.DeleteAsync();
+            try {
+                string blobName = blobUri.Segments[blobUri.Segments.Length - 1];
+                Trace.TraceInformation("Deleting image blob {0}", blobName);
+                CloudBlockBlob blobToDelete = _imagesBlobContainer.GetBlockBlobReference(blobName);
+                await blobToDelete.DeleteAsync();
+            }
+            catch(Exception ex)
+            {
+                //TODO: put in some logging
+                Debug.WriteLine("Failed to Delete image and thumbail" + ex);
+                Trace.TraceInformation("Unable to delete, probably because the image no longer exists in the blob");
+            }
         }
     }
 }

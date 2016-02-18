@@ -17,6 +17,9 @@ namespace TCWAdminPortalWeb.ViewModels
         [Display(Name = "Image URL")]
         public string ImageUrl { get; set; }
 
+        [Display(Name = "Thumbnail URL")]
+        public string ThumbnailURL { get; set; }
+
         public string Description { get; set; }
 
         public DateTime Created { get; set; } = DateTime.UtcNow;

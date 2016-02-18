@@ -217,6 +217,10 @@
     <Compile Include="Migrations\201602172145373_AddedThumbnailURLPropertytoModel.Designer.cs">
       <DependentUpon>201602172145373_AddedThumbnailURLPropertytoModel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201602181724242_AddedThumbnailURLPropertytoAgentModel.cs" />
+    <Compile Include="Migrations\201602181724242_AddedThumbnailURLPropertytoAgentModel.Designer.cs">
+      <DependentUpon>201602181724242_AddedThumbnailURLPropertytoAgentModel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Agent.cs" />
     <Compile Include="Models\ContactInfo.cs" />
@@ -305,6 +309,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201602172145373_AddedThumbnailURLPropertytoModel.resx">
       <DependentUpon>201602172145373_AddedThumbnailURLPropertytoModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201602181724242_AddedThumbnailURLPropertytoAgentModel.resx">
+      <DependentUpon>201602181724242_AddedThumbnailURLPropertytoAgentModel.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

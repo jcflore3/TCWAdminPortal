@@ -22,7 +22,7 @@ namespace TCWAdminPortalWeb.Repository
         Task DeleteBlobsAsync(string imageURL, string thumbnailURL);
         Task DeleteBlobAsync(Uri blobUri);
         Task<CloudBlockBlob> InsertImageBlob(HttpPostedFileBase imageFile);
-        Task AddMessageToQueue(string IdString);
+        Task AddMessageToQueue(string IdString, string objTypeStr);
         void Save();
         Task<int> SaveAsync();
     }
