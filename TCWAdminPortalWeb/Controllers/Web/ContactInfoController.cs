@@ -9,6 +9,7 @@ using TCWAdminPortalWeb.ViewModels;
 
 namespace TCWAdminPortalWeb.Controllers.Web
 {
+    [Authorize]
     public class ContactInfoController : Controller
     {
         private TCWAdminRepository<ContactInfo> _repository;

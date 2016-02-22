@@ -1,13 +1,16 @@
 namespace TCWAdminPortalWeb.Migrations
 {
+    using Microsoft.AspNet.Identity;
+    using Microsoft.AspNet.Identity.EntityFramework;
     using Models;
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<TCWAdminPortalWeb.Models.TCWAdminContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<TCWAdminContext>
     {
+
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
@@ -17,7 +20,7 @@ namespace TCWAdminPortalWeb.Migrations
         /// Seeds the database tables with data if there is no data present in the table
         /// </summary>
         /// <param name="context"></param>
-        protected override void Seed(TCWAdminPortalWeb.Models.TCWAdminContext context)
+        protected override void Seed(TCWAdminContext context)
         {
             //  This method will be called after migrating to the latest version.
 
@@ -25,6 +28,29 @@ namespace TCWAdminPortalWeb.Migrations
             //  to avoid creating duplicate seed data. E.g.
             //
             //    context.People.AddOrUpdate()
+
+            // first create an instance of the user store
+            var userStore = new UserStore<TCWPortalUser>(context);
+            // now create an instance of the UserManager
+            var userManager = new UserManager<TCWPortalUser>(userStore);
+
+            //now check if the default user has been created
+            if (userManager.FindByEmail("sam.hastings@tcw.com") == null)
+            {
+                var newUser = new TCWPortalUser()
+                {
+                    UserName = "samHastings",
+                    //FirstName = "Sam",
+                    //LastName = "Hastings",
+                    Email = "sam.hastings@tcw.com",
+                    LastLoginDate = DateTime.UtcNow
+                };
+
+                //newUser.FullName = newUser.FirstName + newUser.LastName;
+
+                userManager.Create(newUser, "P@ssw0rd!");
+                userManager.Dispose();
+            }
 
             // Seed Featured Property Data
             if (!context.FeaturedProperties.Any())

@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace TCWAdminPortalWeb.Controllers.Web
 {
+    [Authorize]
     public class AppController : Controller
     {
         public ActionResult Index()

@@ -16,6 +16,7 @@ using System.Diagnostics;
 
 namespace TCWAdminPortalWeb.Controllers.Web
 {
+    [Authorize]
     public class FeaturedPropertiesController : Controller
     {
         private ITCWAdminRepository<FeaturedProperty> _repository;

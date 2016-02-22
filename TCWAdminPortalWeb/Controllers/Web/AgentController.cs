@@ -15,6 +15,7 @@ using TCWAdminPortalWeb.ViewModels;
 
 namespace TCWAdminPortalWeb.Controllers.Web
 {
+    [Authorize]
     public class AgentController : Controller
     {
         private TCWAdminRepository<Agent> _repository;
