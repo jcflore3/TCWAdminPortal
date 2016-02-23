@@ -1,5 +1,4 @@
-﻿using System;
-using System.Configuration;
+﻿using Microsoft.WindowsAzure.ServiceRuntime;
 using System.Data.Entity.Migrations;
 
 namespace TCWAdminPortalWeb
@@ -8,7 +7,7 @@ namespace TCWAdminPortalWeb
     {
         public static void RunMigrationsOnStartup()
         {
-            if (bool.Parse(ConfigurationManager.AppSettings["MigrateDatabaseToLatestVersion"]))
+            if (bool.Parse(RoleEnvironment.GetConfigurationSettingValue("MigrateDatabaseToLatestVersion")))
             {
                 var configuration = new Migrations.Configuration();
                 var migrator = new DbMigrator(configuration);
