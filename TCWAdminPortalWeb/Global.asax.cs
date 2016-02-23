@@ -19,6 +19,7 @@ namespace TCWAdminPortalWeb
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             AutoMapperConfig.InitializeAutoMapper();
+            MigrationsConfig.RunMigrationsOnStartup();
         }
     }
 }
