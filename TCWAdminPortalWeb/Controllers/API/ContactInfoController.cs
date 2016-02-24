@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using TCWAdminPortalWeb.Models;
 using TCWAdminPortalWeb.Repository;
 using TCWAdminPortalWeb.ViewModels;
 
 namespace TCWAdminPortalWeb.Controllers.Api
 {
+    [EnableCors(origins: "http://localhost:8080,http://texascrosswayrealty.com", headers: "*", methods: "*")]
     public class ContactInfoController : ApiController
     {
         private TCWAdminRepository<ContactInfo> _repository;

@@ -11,6 +11,9 @@ namespace TCWAdminPortalWeb
     {
         public static void Register(HttpConfiguration config)
         {
+            //Enable CORS
+            config.EnableCors();
+
             config.MapHttpAttributeRoutes();
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
