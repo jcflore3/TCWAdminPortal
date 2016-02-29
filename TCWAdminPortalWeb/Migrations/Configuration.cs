@@ -48,7 +48,7 @@ namespace TCWAdminPortalWeb.Migrations
 
                 //newUser.FullName = newUser.FirstName + newUser.LastName;
 
-                userManager.Create(newUser, "P@ssw0rd!");
+                userManager.Create(newUser, "P@ssw0rd!Test");
                 userManager.Dispose();
             }
 
